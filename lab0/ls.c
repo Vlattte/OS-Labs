@@ -62,13 +62,19 @@ int main(int argc, char** argv)
 		dir = opendir(".");	
 	}
 
+ 			struct stat st;
+			if(path_num == -1 && l_flag == 1)
+                        	stat(".", &st);
+			else if(path_num != -1 && l_flag == 1)
+				stat(argv[path_num], &st);
+			printf("total %d\n", st.st_blocks);
+
 	while(cdir = readdir(dir))        	
 	{
         	if(l_flag == 1)
         	{
 			struct stat buff;
 			stat(cdir->d_name, &buff);
-//			printf("%d", buff.st_blocks);
 				
 			/* заполнение структуры типа stat */
 			if(cdir->d_name[0] != '.')
