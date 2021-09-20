@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <stdint.h>
+#include <string.h>
 
 int main(int argc, char** argv)
 {
@@ -25,25 +26,21 @@ int main(int argc, char** argv)
 	{
 		//if flag, then operate it
 		if ((go = getopt(argc, argv, "l")) != -1)
-
 	       	{
-	       	        switch(go)
+	   	        switch(go)
 	                {
 	               	        case 'l':
-				l_flag = 1;		
+				l_flag = 1;
 	                        break;
 	                     	case '?':
         	       	        printf("ERROR");
-				exit(2);	       	        
+				exit(2);
 	              	}
         	}
 		else 
 		{
-			if (cur_par != 1)
-			{
-				path_num = cur_par;
-			}
-		}	
+			path_num = cur_par;
+		}
 		cur_par = cur_par + 1;
 	}		
 
@@ -53,7 +50,7 @@ int main(int argc, char** argv)
 		dir = opendir(argv[path_num]);
 		if(dir == NULL)
 		{
-			printf("\nNO SUCH DIRECTORY\n");
+			printf("NO SUCH DIRECTORY");
 			exit(3);
 		}
 	}
@@ -61,24 +58,41 @@ int main(int argc, char** argv)
 	{
 		dir = opendir(".");	
 	}
-
- 			struct stat st;
-			if(path_num == -1 && l_flag == 1)
-                        	stat(".", &st);
-			else if(path_num != -1 && l_flag == 1)
-				stat(argv[path_num], &st);
-			printf("total %d\n", st.st_blocks);
+	
+	struct stat st;
+	if(path_num != -1 && l_flag == 1)
+	{
+                stat(argv[path_num], &st);
+		
+		printf("\ntotal %ld\n", st.st_blocks);
+	}	
+	else if(l_flag == 1 && path_num == -1)
+	{
+		stat(".", &st);
+		printf("\ntotal %d\n", st.st_blocks);
+	}
 
 	while(cdir = readdir(dir))        	
 	{
-        	if(l_flag == 1)
-        	{
-			struct stat buff;
-			stat(cdir->d_name, &buff);
+        	        struct stat buff;
+			if(path_num != -1)
+			{
+				char* path = malloc(strlen(argv[path_num]) + strlen(cdir->d_name) + 1);
+				memcpy(path, argv[path_num], strlen(argv[path_num]));
+				memcpy(path + strlen(argv[path_num]), cdir->d_name, strlen(cdir->d_name) + 1);
+                        	stat(path, &buff);
+				free(path);
+                        }
+			else
+			{
+				stat(cdir->d_name, &buff);				
+			}
 				
-			/* заполнение структуры типа stat */
 			if(cdir->d_name[0] != '.')
 			{
+				if(l_flag == 1)
+                		{
+
 				switch(buff.st_mode & S_IFMT)
 				{
 					case S_IFSOCK: printf("s"); break;
@@ -89,7 +103,6 @@ int main(int argc, char** argv)
                                         case S_IFIFO: printf("p"); break;
                                         default: printf("-"); break;         
 				}
-
 
 				//user block
 				if(S_IRUSR & buff.st_mode) printf("r"); else printf("-");
@@ -112,12 +125,15 @@ int main(int argc, char** argv)
 				printf("%s ", group->gr_name);
 
 				printf("%ld ", buff.st_size);
+				
 				//data
 				time_t t = buff.st_ctime;
-                                struct tm time;
-                                localtime_r(&t, &time);
-
-				switch(time.tm_mon)
+                                struct tm ftime;
+                                time_t now;                                
+				localtime_r(&t, &ftime);
+				time(&now);
+				
+				switch(ftime.tm_mon)
 				{
 					case 0: printf("Jan"); break;
 					case 1: printf("Feb"); break;
@@ -132,12 +148,23 @@ int main(int argc, char** argv)
 					case 10:printf("Nov"); break;
 					case 11:printf("Dec"); break;
 				}
-		
-				printf(" %d %d:%d ",time.tm_mday, time.tm_hour, time.tm_min);
-				printf("%s\n", cdir->d_name);//file name
+				
+				if(localtime(&now)->tm_year == localtime(&buff.st_ctime)->tm_year)
+                                {
+					printf(" %d %02d:%02d ", ftime.tm_mday, ftime.tm_hour, ftime.tm_min);
+		                }
+				else
+				{	
+					printf(" %d %d ", ftime.tm_mday, 1900 + ftime.tm_year);
+				}
+				}
+				printf("%s ", cdir->d_name);//file name
+				if(l_flag == 1)
+					printf("\n");
 			}
-		}			
-        }
+					
+	}	
+	printf("\n");	
 	closedir(dir);
 	return 0;
 }
