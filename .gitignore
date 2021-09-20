@@ -1,4 +1,4 @@
-sites
+# Prerequisites
 *.d
 
 # Object files
@@ -41,6 +41,11 @@ sites
 *.su
 *.idb
 *.pdb
+
+
+.*
+
+
 
 # Kernel Module Compile Results
 *.mod*
