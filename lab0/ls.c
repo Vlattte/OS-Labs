@@ -121,10 +121,17 @@ int main(int argc, char** argv)
 				
 				printf(" %d ", buff.st_nlink);
 					
-				printf("%s ", user->pw_name);
-				printf("%s ", group->gr_name);
+				//if no user
+				if(user == 0)
+					printf("============== ");
+				else
+					printf("%s ", user->pw_name);
+				//if no group 
+				if(group == 0)
+					printf("============== ");
+				else
+					printf("%s ", group->gr_name);
 
-				printf("%ld ", buff.st_size);
 				
 				//data
 				time_t t = buff.st_ctime;
