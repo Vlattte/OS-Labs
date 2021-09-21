@@ -132,7 +132,7 @@ int main(int argc, char** argv)
 				else
 					printf("%s ", group->gr_name);
 
-				printf("%d ", buff.st_size);
+				printf("%ld ", buff.st_size);
 				//data
 				time_t t = buff.st_ctime;
                                 struct tm ftime;
