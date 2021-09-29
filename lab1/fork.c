@@ -26,7 +26,7 @@ int main()
 			printf("------\nCHILD:\n------\n");
 			printf("Я потомок процесса: %d\n", getppid());
 			printf("Мой PID: %d\n", getpid());
-			exit(status);
+			exit(0);
 		default:
 			printf("-------\nPARENT:\n-------\n");
 			printf("Мой PID: %d\n", getpid());
