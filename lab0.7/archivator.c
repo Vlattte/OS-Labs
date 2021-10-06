@@ -2,6 +2,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <time.h>
 
 //move file to arch_file
 void insertion(char* arch_name, char* file_name)
@@ -17,7 +19,7 @@ void insertion(char* arch_name, char* file_name)
 	}
 	if (access(arch_name, 0) == -1)
 		alrdy_exts = 1;
-	archivator = fopen(arch_name, "a");
+	archivator = fopen(arch_name, "a+");
 	int amount = 0;
 
 	if ((access("CountAmount", 0) == 0) && (alrdy_exts != 1))
@@ -106,7 +108,6 @@ void extraction(char* arch_name, char* file_name)
 		while (ch != '\n')
 		{
 			ch = fgetc(archivator);
-			//printf("|%c|", ch);	
 			if (ch == ' ')
 				name = name_len;;
 			name_len += 1;
@@ -177,9 +178,8 @@ void extraction(char* arch_name, char* file_name)
 		printf("%c", ch);
 		counter += 1;
 	}
-	printf("|\n");
+	//printf("|\n");
 
-	printf("length%d\n archive_size%d\n counter%d\n", length, archive_size, counter);
 	printf("%d\n", length - archive_size - counter);
 	if (length != ftell(archivator))
 	{
@@ -187,6 +187,7 @@ void extraction(char* arch_name, char* file_name)
 		if (archivator)
 		{
 			_buff = malloc(length - archive_size - counter);
+			//if()
 			if (_buff)
 			{
 				fread(_buff, 1, length - archive_size - counter, archivator);
@@ -199,8 +200,6 @@ void extraction(char* arch_name, char* file_name)
 
 	//delete old archive
 	//rename new archive into new one
-	//fprintf(narch, "\n");
-
 	fclose(narch);
 	if(archivator)
 		fclose(archivator);
@@ -211,6 +210,75 @@ void extraction(char* arch_name, char* file_name)
 }
 
 
+void Help()
+{
+	printf("\nHElP\nManual for archivator. There are 4 flags for archivator:\n");
+	printf(" -h help flag. Prints manual for work with archivator\n");
+	printf(" -s stat flag. Prints stat info for current archive (./archivator arch_name.txt -s)\n");
+	printf(" -i insert flag. Inserts file into archive (./archivator arch_name.txt -i file.txt)\n");
+	printf(" -e extract flag. Extracts file from archive (./archivator arch_name.txt -e file.txt)\n");
+}
+
+void Stat_info(char* arch_name)
+{
+	printf("\nSTAT:\n");
+	FILE* count_amount;
+	if ((count_amount = fopen("CountAmount", "r+")) == NULL)
+	{
+		printf("No files in archive = no stat\n");
+		return;
+	}
+
+	int amount = 0;
+	fscanf(count_amount, "%d\n", &amount);
+	amount -= 1;
+	fclose(count_amount);
+
+	if (amount == 0)
+	{
+		printf("No files in archive = no stat\n");
+		return;
+	}
+
+	struct stat buff;
+	stat(arch_name, &buff);
+	printf("Size: %ld\n", buff.st_size);
+	printf("Number of files: %d\n", amount);
+	
+
+	//data
+	printf("Last time archive was changed: ");
+	time_t t = buff.st_ctime;
+	struct tm ftime;
+	time_t now;
+	localtime_r(&t, &ftime);
+	time(&now);
+
+	switch (ftime.tm_mon)
+	{
+	case 0: printf("Jan"); break;
+	case 1: printf("Feb"); break;
+	case 2: printf("Mar"); break;
+	case 3: printf("Apr"); break;
+	case 4: printf("May"); break;
+	case 5: printf("Jun"); break;
+	case 6: printf("Jul"); break;
+	case 7: printf("Aug"); break;
+	case 8: printf("Sep"); break;
+	case 9: printf("Oct"); break;
+	case 10:printf("Nov"); break;
+	case 11:printf("Dec"); break;
+	}
+
+	if (localtime(&now)->tm_year == localtime(&buff.st_ctime)->tm_year)
+	{
+		printf(" %d %02d:%02d\n", ftime.tm_mday, ftime.tm_hour, ftime.tm_min);
+	}
+	else
+	{
+		printf(" %d %d\n", ftime.tm_mday, 1900 + ftime.tm_year);
+	}
+}
 
 
 int main(int argc, char* argv[])
@@ -225,29 +293,22 @@ int main(int argc, char* argv[])
 		switch (go)
 		{
 		case 'i':
-			printf("it's input flag\n");
 			insertion(arch, optarg);
 			break;
 		case 'e':
-			printf("it's extract flag\n");
 			extraction(arch, optarg);
 			break;
 		case 'h':
-			printf("HELP ME\n");
+			Help();
 			break;
 		case 's':
-			printf("STATATTADSTADYASDGSHDSAJHd\n");
+			Stat_info(arch);
 			break;
 		case '?':
 			printf("ERROR");
 			return 1;
 		}
 	}
-
-	if (cur_flag == 'i')
-		insertion(arch, file);
-	else if (cur_flag == 'e')
-		extraction(arch, file);
 
 	return 0;
 }
