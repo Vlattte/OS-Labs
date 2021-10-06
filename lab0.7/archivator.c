@@ -151,7 +151,6 @@ void extraction(char* arch_name, char* file_name)
 
 	fseek(archivator, 0, SEEK_END);
 	length = ftell(archivator);
-	printf("LENGTH %d\nFtell %d\n", length, ftell(archivator));
 	fseek(archivator, 0, SEEK_SET);
 
 	if (archive_size != 0)
@@ -159,45 +158,48 @@ void extraction(char* arch_name, char* file_name)
 		char* _buff = 0;
 		if (archivator)
 		{
-			_buff = malloc(archive_size);
+			_buff = malloc(archive_size + 1);
 			if (_buff)
 			{
 				fread(_buff, 1, archive_size, archivator);
 			}
 		}
+		printf("\nPre buffer:\n|%s|\n", _buff);
 		fprintf(narch, _buff);
-
 		free(_buff);
 	}
 
-
-
+	printf("\nOdd chars:\n|");
 	int counter = 0;
 	while (counter != file_size + name_len)
 	{
 		ch = fgetc(archivator);
+		printf("%c", ch);
 		counter += 1;
 	}
+	printf("|\n");
 
-	printf("LENGTH %d\nFtell %d\n", length, ftell(archivator));
+	printf("length%d\n archive_size%d\n counter%d\n", length, archive_size, counter);
+	printf("%d\n", length - archive_size - counter);
 	if (length != ftell(archivator))
 	{
 		char* _buff = 0;
 		if (archivator)
 		{
-			_buff = malloc(length - archive_size - counter - 1);
+			_buff = malloc(length - archive_size - counter);
 			if (_buff)
 			{
-				fread(_buff, 1, length - archive_size - counter - 1, archivator);
+				fread(_buff, 1, length - archive_size - counter, archivator);
 			}
 		}
 		fprintf(narch, _buff);
+		printf("\nAfter buffer:\n|%s|\n", _buff);
 		free(_buff);
 	}
 
 	//delete old archive
 	//rename new archive into new one
-	fprintf(narch, "\n");
+	//fprintf(narch, "\n");
 
 	fclose(narch);
 	if(archivator)
