@@ -173,22 +173,22 @@ void extraction(char* arch_name, char* file_name)
 				fread(_buff, 1, archive_size, archivator);
 			}
 		}
-		printf("\nPre buffer:\n|%s|\n", _buff);
+//		printf("\nPre buffer:\n|%s|\n", _buff);
 		fprintf(narch, _buff);
 		free(_buff);
 	}
 
-	printf("\nOdd chars:\n|");
+//	printf("\nOdd chars:\n|");
 	int counter = 0;
 	while (counter != file_size + name_len)
 	{
 		ch = fgetc(archivator);
-		printf("%c", ch);
+//		printf("%c", ch);
 		counter += 1;
 	}
-	printf("|\n");
+//	printf("|\n");
 
-	printf("%d\n", length - archive_size - counter);
+//	printf("%d\n", length - archive_size - counter);
 	if (length != ftell(archivator))
 	{
 		char* _buff = 0;
@@ -201,7 +201,7 @@ void extraction(char* arch_name, char* file_name)
 			}
 		}
 		fprintf(narch, _buff);
-		printf("\nAfter buffer:\n|%s|\n", _buff);
+//		printf("\nAfter buffer:\n|%s|\n", _buff);
 		free(_buff);
 	}
 
@@ -237,7 +237,6 @@ void Stat_info(char* arch_name)
 
 	int amount = 0;
 	fscanf(count_amount, "%d\n", &amount);
-	amount -= 1;
 	fclose(count_amount);
 
 	if (amount == 0)
