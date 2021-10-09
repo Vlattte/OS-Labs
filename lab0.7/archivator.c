@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <time.h>
 
 //move file to arch_file
@@ -11,6 +12,11 @@ void insertion(char* arch_name, char* file_name)
 	FILE* file, *archivator;
 	FILE* count_amount;
 	int alrdy_exts = 0;
+	
+	struct stat file_stat;
+	stat(file_name, &file_stat);
+	mode_t mode = file_stat.st_mode;
+	
 
 	if ((file = fopen(file_name, "r")) == NULL)
 	{
@@ -48,7 +54,7 @@ void insertion(char* arch_name, char* file_name)
 			fread(buff, 1, length, file);
 		}
 	}
-	fprintf(archivator, "%s %d\n", file_name, length);
+	fprintf(archivator, "%s %d %d\n", file_name, mode, length);
 	fprintf(archivator, buff);
 
 	free(buff);
@@ -88,12 +94,13 @@ void extraction(char* arch_name, char* file_name)
 	char buff[strlen(arch_name)];
 	char ch;
 	fpos_t pos;
-	long name_len = 0;
-	long name = 0;
+	long name_len;
+	long name;
 	int search_flag = 1;
 
 	int archive_size = 0;
 	int file_size;
+	int mode_len = 0;
 
 	while (search_flag)
 	{
@@ -107,13 +114,15 @@ void extraction(char* arch_name, char* file_name)
 		while (ch != '\n')
 		{
 			ch = fgetc(archivator);
-			if (ch == ' ')
-				name = name_len;;
+			if (ch == ' ' && name != 0)
+				name = name_len;
+			else
+				mode_len = name_len;
 			name_len += 1;
 		}
 
 		fsetpos(archivator, &pos);
-		fscanf(archivator, "%s %d", buff, &file_size);
+		fscanf(archivator, "%s %d %d", buff, &mode_len, &file_size);
 
 		if (strcmp(buff, file_name) == 0)
 		{
@@ -164,22 +173,22 @@ void extraction(char* arch_name, char* file_name)
 				fread(_buff, 1, archive_size, archivator);
 			}
 		}
-		//printf("\nPre buffer:\n|%s|\n", _buff);
+		printf("\nPre buffer:\n|%s|\n", _buff);
 		fprintf(narch, _buff);
 		free(_buff);
 	}
 
-	//printf("\nOdd chars:\n|");
+	printf("\nOdd chars:\n|");
 	int counter = 0;
 	while (counter != file_size + name_len)
 	{
 		ch = fgetc(archivator);
-		//printf("%c", ch);
+		printf("%c", ch);
 		counter += 1;
 	}
-	//printf("|\n");
+	printf("|\n");
 
-	//printf("%d\n", length - archive_size - counter);
+	printf("%d\n", length - archive_size - counter);
 	if (length != ftell(archivator))
 	{
 		char* _buff = 0;
@@ -192,7 +201,7 @@ void extraction(char* arch_name, char* file_name)
 			}
 		}
 		fprintf(narch, _buff);
-		//printf("\nAfter buffer:\n|%s|\n", _buff);
+		printf("\nAfter buffer:\n|%s|\n", _buff);
 		free(_buff);
 	}
 
@@ -206,7 +215,6 @@ void extraction(char* arch_name, char* file_name)
 	remove(arch_name);
 	rename("NEW_ARCH", arch_name);
 }
-
 
 void Help()
 {
@@ -242,7 +250,6 @@ void Stat_info(char* arch_name)
 	stat(arch_name, &buff);
 	printf("Size: %ld\n", buff.st_size);
 	printf("Number of files: %d\n", amount);
-	
 
 	//data
 	printf("Last time archive was changed: ");
@@ -277,7 +284,6 @@ void Stat_info(char* arch_name)
 		printf(" %d %d\n", ftime.tm_mday, 1900 + ftime.tm_year);
 	}
 }
-
 
 int main(int argc, char* argv[])
 {

@@ -5,7 +5,8 @@ build:
 	./archivator arch -i file1 -i file2 -e file1 -h -s
 clean:
 	rm archivator
-	rm arch.txt
+	rm arch
+	rm CountAmount
 extraction_all:
 	./archivator arch -e file1 -e file2
 extr_first:
