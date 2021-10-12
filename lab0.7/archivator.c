@@ -10,13 +10,12 @@
 void insertion(char* arch_name, char* file_name)
 {
 	FILE* file, *archivator;
-	FILE* count_amount;
+	//FILE* count_amount;
 	int alrdy_exts = 0;
 	
 	struct stat file_stat;
 	stat(file_name, &file_stat);
 	mode_t mode = file_stat.st_mode;
-	
 
 	if ((file = fopen(file_name, "r")) == NULL)
 	{
@@ -26,9 +25,9 @@ void insertion(char* arch_name, char* file_name)
 	if (access(arch_name, 0) == -1)
 		alrdy_exts = 1;
 	archivator = fopen(arch_name, "a+");
-	int amount = 0;
+	//int amount = 0;
 
-	if ((access("CountAmount", 0) == 0) && (alrdy_exts != 1))
+	/*if ((access("CountAmount", 0) == 0) && (alrdy_exts != 1))
 	{
 		count_amount = fopen("CountAmount", "r+");
 		fscanf(count_amount, "%d", &amount);
@@ -38,7 +37,7 @@ void insertion(char* arch_name, char* file_name)
 	count_amount = fopen("CountAmount", "w");
 	amount += 1;
 	fprintf(count_amount, "%d", amount);
-	fclose(count_amount);
+	fclose(count_amount);*/
 
 	char* buff = 0;
 	long length;
@@ -74,6 +73,7 @@ void extraction(char* arch_name, char* file_name)
 		exit(2);
 	}
 
+	/*
 	FILE* count_amount;
 	count_amount = fopen("CountAmount", "r+");
 	int amount = 0;
@@ -89,7 +89,7 @@ void extraction(char* arch_name, char* file_name)
 		fprintf(count_amount, "%d", amount);
 		fclose(count_amount);
 	}
-
+	*/
 
 	char buff[strlen(arch_name)];
 	char ch;
@@ -154,9 +154,8 @@ void extraction(char* arch_name, char* file_name)
 		}
 	}
 
-	FILE* narch;
+	char* file_before = 0, * file_after = 0;
 	int length;
-	narch = fopen("NEW_ARCH", "w");
 
 	fseek(archivator, 0, SEEK_END);
 	length = ftell(archivator);
@@ -164,18 +163,15 @@ void extraction(char* arch_name, char* file_name)
 
 	if (archive_size != 0)
 	{
-		char* _buff = 0;
 		if (archivator)
 		{
-			_buff = malloc(archive_size + 1);
-			if (_buff)
+			file_before = malloc(archive_size + 1);
+			if (file_before)
 			{
-				fread(_buff, 1, archive_size, archivator);
+				fread(file_before, 1, archive_size, archivator);
 			}
 		}
 //		printf("\nPre buffer:\n|%s|\n", _buff);
-		fprintf(narch, _buff);
-		free(_buff);
 	}
 
 //	printf("\nOdd chars:\n|");
@@ -191,29 +187,29 @@ void extraction(char* arch_name, char* file_name)
 //	printf("%d\n", length - archive_size - counter);
 	if (length != ftell(archivator))
 	{
-		char* _buff = 0;
 		if (archivator)
 		{
-			_buff = malloc(length - archive_size - counter);
-			if (_buff)
+			file_after = malloc(length - archive_size - counter);
+			if (file_after)
 			{
-				fread(_buff, 1, length - archive_size - counter, archivator);
+				fread(file_after, 1, length - archive_size - counter, archivator);
 			}
 		}
-		fprintf(narch, _buff);
 //		printf("\nAfter buffer:\n|%s|\n", _buff);
-		free(_buff);
 	}
 
-	//delete old archive
-	//rename new archive into new one
-	fclose(narch);
 	if(archivator)
 		fclose(archivator);
 	fclose(file);
 
-	remove(arch_name);
-	rename("NEW_ARCH", arch_name);
+	archivator = fopen(arch_name, "w");
+	printf("Before:\n%s\n\nAfter:\n%s\n");
+	if(file_before)
+		fprintf(archivator, "%s", file_before);
+	if(file_after)
+		fprintf(archivator, "%s", file_after);
+	//fprintf(archivator, file_after);
+	fclose(archivator);
 }
 
 void Help()
@@ -228,6 +224,7 @@ void Help()
 void Stat_info(char* arch_name)
 {
 	printf("\nSTAT:\n");
+	/*
 	FILE* count_amount;
 	if ((count_amount = fopen("CountAmount", "r+")) == NULL)
 	{
@@ -244,11 +241,12 @@ void Stat_info(char* arch_name)
 		printf("No files in archive = no stat\n");
 		return;
 	}
+	*/
 
 	struct stat buff;
 	stat(arch_name, &buff);
-	printf("Size: %ld\n", buff.st_size);
-	printf("Number of files: %d\n", amount);
+	printf("Arch_name: %s\nSize: %ld\n", arch_name, buff.st_size);
+	//printf("Number of files: %d\n", amount);
 
 	//data
 	printf("Last time archive was changed: ");
