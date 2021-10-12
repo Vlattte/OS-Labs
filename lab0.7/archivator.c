@@ -203,7 +203,7 @@ void extraction(char* arch_name, char* file_name)
 	fclose(file);
 
 	archivator = fopen(arch_name, "w");
-	printf("Before:\n%s\n\nAfter:\n%s\n");
+	//printf("Before:\n%s\n\nAfter:\n%s\n");
 	if(file_before)
 		fprintf(archivator, "%s", file_before);
 	if(file_after)
