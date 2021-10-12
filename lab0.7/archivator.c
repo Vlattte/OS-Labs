@@ -209,6 +209,8 @@ void extraction(char* arch_name, char* file_name)
 	if(file_after)
 		fprintf(archivator, "%s", file_after);
 	//fprintf(archivator, file_after);
+        free(file_after);
+        free(file_before);
 	fclose(archivator);
 }
 
