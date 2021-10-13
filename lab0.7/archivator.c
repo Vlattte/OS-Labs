@@ -6,11 +6,77 @@
 #include <sys/types.h>
 #include <time.h>
 
+int CountAmount(char* arch_name, char* file_name, int file_scan)
+{
+	FILE * archivator;
+	if ((archivator = fopen(arch_name, "r")) == NULL)
+	{
+		return 0;
+	}
+
+	fseek(archivator, 0, SEEK_END);
+	int length = ftell(archivator);
+	fseek(archivator, 0, SEEK_SET);
+
+	char buff[strlen(arch_name)];
+	int file_amount = 0;
+	mode_t mode_len;
+	long int file_size;
+	int end_flag = 0;
+	char ch = '|';
+	int n = 0;
+
+	if(file_scan == 0)
+		printf("Files in arch:");
+
+	while (end_flag != 1)
+	{
+		/*printf("File name: ");
+		while (ch != ' ')
+		{
+			ch = fgetc(archivator);
+			if (ftell(archivator) == length)
+			{
+				end_flag = 1;
+			}
+			printf("%c", ch);
+		}*/
+
+		fscanf(archivator, "%s %d %ld", buff, &mode_len, &file_size);
+		if (file_scan == 0)
+			printf("\n\t%s", buff);
+		else if (strcmp(buff, file_name) == 0)
+		{
+			printf("\n------------------------------------------------------\nThere is already file with this name (%s) ERROR\n------------------------------------------------------\n", file_name);
+			return -1;
+		}
+			
+		file_amount += 1;
+		n = 0;
+		while (n < (file_size + 1))
+		{
+			n += 1;
+			ch = fgetc(archivator);
+			if (ftell(archivator) == length)
+			{
+				end_flag = 1;
+			}
+		}
+		
+	}
+
+	fclose(archivator);
+	return file_amount;
+}
+
 //move file to arch_file
 void insertion(char* arch_name, char* file_name)
 {
+	int ardy_exts = CountAmount(arch_name, file_name, 1);
+	if (ardy_exts == -1)
+		return;
+
 	FILE* file, *archivator;
-	//FILE* count_amount;
 	int alrdy_exts = 0;
 	
 	struct stat file_stat;
@@ -66,32 +132,14 @@ void insertion(char* arch_name, char* file_name)
 void extraction(char* arch_name, char* file_name)
 {
 	FILE* file, * archivator;
-	file = fopen(file_name, "w");
 	if ((archivator = fopen(arch_name, "r")) == NULL)
 	{
 		printf("Cannot open the file %s\n", arch_name);
 		exit(2);
 	}
+	file = fopen(file_name, "w");
 
-	/*
-	FILE* count_amount;
-	count_amount = fopen("CountAmount", "r+");
-	int amount = 0;
-
-	fscanf(count_amount, "%d", &amount);
-	amount -= 1;
-	fclose(count_amount);
-	if (amount == 0)
-		remove("CountAmount");
-	else
-	{
-		count_amount = fopen("CountAmount", "w");
-		fprintf(count_amount, "%d", amount);
-		fclose(count_amount);
-	}
-	*/
-
-	char buff[strlen(arch_name)];
+	char buff[strlen(file_name)];
 	char ch;
 	fpos_t pos;
 	long name_len;
@@ -102,8 +150,10 @@ void extraction(char* arch_name, char* file_name)
 	int file_size;
 	int mode_len = 0;
 
-	while (search_flag)
+
+	while (search_flag != 0)
 	{
+
 		file_size = 0;
 		name_len = 0;
 		name = 0;
@@ -114,6 +164,12 @@ void extraction(char* arch_name, char* file_name)
 		while (ch != '\n')
 		{
 			ch = fgetc(archivator);
+			if (ch == EOF)
+			{
+				ch = '\n';
+				search_flag = 0;
+				printf("No such file in archive.\nFile name: %s\nArchive name: %s\n", file_name, arch_name);
+			}
 			if (ch == ' ' && name != 0)
 				name = name_len;
 			else
@@ -153,6 +209,7 @@ void extraction(char* arch_name, char* file_name)
 			archive_size += name_len + file_size;
 		}
 	}
+
 
 	char* file_before = 0, * file_after = 0;
 	int length;
@@ -210,6 +267,8 @@ void extraction(char* arch_name, char* file_name)
 		fprintf(archivator, "%s", file_after);
 	//fprintf(archivator, file_after);
 	fclose(archivator);
+	free(file_before);
+	free(file_after);
 }
 
 void Help()
@@ -224,6 +283,9 @@ void Help()
 void Stat_info(char* arch_name)
 {
 	printf("\nSTAT:\n");
+
+	int file_amount = CountAmount(arch_name, " ", 0);
+	printf("\nFile amount: %d\n", file_amount);
 	/*
 	FILE* count_amount;
 	if ((count_amount = fopen("CountAmount", "r+")) == NULL)
