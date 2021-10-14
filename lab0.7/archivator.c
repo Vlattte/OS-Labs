@@ -8,11 +8,7 @@
 
 int CountAmount(char* arch_name, char* file_name, int file_scan)
 {
-<<<<<<< HEAD
 	FILE* archivator;
-=======
-	FILE * archivator;
->>>>>>> 693af204bad4f2ce5ee9945dbc79b5417a663134
 	if ((archivator = fopen(arch_name, "r")) == NULL)
 	{
 		return 0;
@@ -22,28 +18,18 @@ int CountAmount(char* arch_name, char* file_name, int file_scan)
 	int length = ftell(archivator);
 	fseek(archivator, 0, SEEK_SET);
 
-<<<<<<< HEAD
-=======
-	char buff[strlen(arch_name)];
->>>>>>> 693af204bad4f2ce5ee9945dbc79b5417a663134
 	int file_amount = 0;
 	mode_t mode_len;
 	long int file_size;
 	int end_flag = 0;
 	char ch = '|';
 	int n = 0;
-<<<<<<< HEAD
 	
 	if (file_scan == 0)
-=======
-
-	if(file_scan == 0)
->>>>>>> 693af204bad4f2ce5ee9945dbc79b5417a663134
 		printf("Files in arch:");
 
 	while (end_flag != 1)
 	{
-<<<<<<< HEAD
 		long name_len;
 		fscanf(archivator, "%ld ", &name_len);
 		char *cur_file_name;
@@ -63,28 +49,6 @@ int CountAmount(char* arch_name, char* file_name, int file_scan)
 		}
 
 
-=======
-		/*printf("File name: ");
-		while (ch != ' ')
-		{
-			ch = fgetc(archivator);
-			if (ftell(archivator) == length)
-			{
-				end_flag = 1;
-			}
-			printf("%c", ch);
-		}*/
-
-		fscanf(archivator, "%s %d %ld", buff, &mode_len, &file_size);
-		if (file_scan == 0)
-			printf("\n\t%s", buff);
-		else if (strcmp(buff, file_name) == 0)
-		{
-			printf("\n------------------------------------------------------\nThere is already file with this name (%s) ERROR\n------------------------------------------------------\n", file_name);
-			return -1;
-		}
-			
->>>>>>> 693af204bad4f2ce5ee9945dbc79b5417a663134
 		file_amount += 1;
 		n = 0;
 		while (n < (file_size + 1))
@@ -96,11 +60,7 @@ int CountAmount(char* arch_name, char* file_name, int file_scan)
 				end_flag = 1;
 			}
 		}
-<<<<<<< HEAD
 		free(cur_file_name);
-=======
-		
->>>>>>> 693af204bad4f2ce5ee9945dbc79b5417a663134
 	}
 
 	fclose(archivator);
@@ -114,16 +74,7 @@ void insertion(char* arch_name, char* file_name)
 	if (ardy_exts == -1)
 		return;
 
-<<<<<<< HEAD
 	FILE* file, * archivator;
-=======
-	FILE* file, *archivator;
-	int alrdy_exts = 0;
-	
-	struct stat file_stat;
-	stat(file_name, &file_stat);
-	mode_t mode = file_stat.st_mode;
->>>>>>> 693af204bad4f2ce5ee9945dbc79b5417a663134
 
 	
 	if ((file = fopen(file_name, "r")) == NULL)
@@ -167,20 +118,11 @@ void extraction(char* arch_name, char* file_name)
 	FILE* file, * archivator;
 	if ((archivator = fopen(arch_name, "r")) == NULL)
 	{
-<<<<<<< HEAD
 		printf("Cannot open the file: (%s)\n", arch_name);
 		return;
 	}
 	file = fopen(file_name, "w");
 
-=======
-		printf("Cannot open the file %s\n", arch_name);
-		exit(2);
-	}
-	file = fopen(file_name, "w");
-
-	char buff[strlen(file_name)];
->>>>>>> 693af204bad4f2ce5ee9945dbc79b5417a663134
 	char ch;
 	fpos_t pos;
 	long pars_len;
@@ -194,7 +136,6 @@ void extraction(char* arch_name, char* file_name)
 
 	while (search_flag != 0)
 	{
-
 		file_size = 0;
 		pars_len = 0;
 		name_len = 0;
@@ -207,24 +148,12 @@ void extraction(char* arch_name, char* file_name)
 			ch = fgetc(archivator);
 			if (ch == EOF)
 			{
-<<<<<<< HEAD
 				/*ch = '\n';
 				search_flag = 0;*/
 				printf("No such file in archive.\nFile name: %s\nArchive name: %s\n", file_name, arch_name);
 				return;
 			}
 			pars_len += 1;
-=======
-				ch = '\n';
-				search_flag = 0;
-				printf("No such file in archive.\nFile name: %s\nArchive name: %s\n", file_name, arch_name);
-			}
-			if (ch == ' ' && name != 0)
-				name = name_len;
-			else
-				mode_len = name_len;
-			name_len += 1;
->>>>>>> 693af204bad4f2ce5ee9945dbc79b5417a663134
 		}
 
 		fsetpos(archivator, &pos);
@@ -267,11 +196,7 @@ void extraction(char* arch_name, char* file_name)
 		free(cur_file_name);
 	}
 
-<<<<<<< HEAD
 ;
-=======
-
->>>>>>> 693af204bad4f2ce5ee9945dbc79b5417a663134
 	char* file_before = 0, * file_after = 0;
 	int length;
 
@@ -329,14 +254,11 @@ void extraction(char* arch_name, char* file_name)
 	fclose(archivator);
 	free(file_before);
 	free(file_after);
-<<<<<<< HEAD
 
 	struct stat rm_stat;
 	stat(arch_name, &rm_stat);
 	if (rm_stat.st_size == 0)
 		remove(arch_name);
-=======
->>>>>>> 693af204bad4f2ce5ee9945dbc79b5417a663134
 }
 
 void Help()
@@ -351,19 +273,6 @@ void Help()
 void Stat_info(char* arch_name)
 {
 	printf("\nSTAT:\n");
-<<<<<<< HEAD
-=======
-
-	int file_amount = CountAmount(arch_name, " ", 0);
-	printf("\nFile amount: %d\n", file_amount);
-	/*
-	FILE* count_amount;
-	if ((count_amount = fopen("CountAmount", "r+")) == NULL)
-	{
-		printf("No files in archive = no stat\n");
-		return;
-	}
->>>>>>> 693af204bad4f2ce5ee9945dbc79b5417a663134
 
 	int file_amount = CountAmount(arch_name, " ", 0);
 	printf("\nFile amount: %d\n", file_amount);
