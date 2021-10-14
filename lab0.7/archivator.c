@@ -8,7 +8,7 @@
 
 int CountAmount(char* arch_name, char* file_name, int file_scan)
 {
-	FILE * archivator;
+	FILE* archivator;
 	if ((archivator = fopen(arch_name, "r")) == NULL)
 	{
 		return 0;
@@ -18,39 +18,37 @@ int CountAmount(char* arch_name, char* file_name, int file_scan)
 	int length = ftell(archivator);
 	fseek(archivator, 0, SEEK_SET);
 
-	char buff[strlen(arch_name)];
 	int file_amount = 0;
 	mode_t mode_len;
 	long int file_size;
 	int end_flag = 0;
 	char ch = '|';
 	int n = 0;
-
-	if(file_scan == 0)
+	
+	if (file_scan == 0)
 		printf("Files in arch:");
 
 	while (end_flag != 1)
 	{
-		/*printf("File name: ");
-		while (ch != ' ')
-		{
-			ch = fgetc(archivator);
-			if (ftell(archivator) == length)
-			{
-				end_flag = 1;
-			}
-			printf("%c", ch);
-		}*/
+		long name_len;
+		fscanf(archivator, "%ld ", &name_len);
+		char *cur_file_name;
+		cur_file_name = malloc(name_len);
+		fread(cur_file_name, 1, name_len, archivator);
+		fscanf(archivator, " %d %ld", &mode_len, &file_size);
+		
+	
 
-		fscanf(archivator, "%s %d %ld", buff, &mode_len, &file_size);
 		if (file_scan == 0)
-			printf("\n\t%s", buff);
-		else if (strcmp(buff, file_name) == 0)
+			printf("\n\t%s", cur_file_name);
+		else if (strcmp(cur_file_name, file_name) == 0)
 		{
+			free(cur_file_name);
 			printf("\n------------------------------------------------------\nThere is already file with this name (%s) ERROR\n------------------------------------------------------\n", file_name);
 			return -1;
 		}
-			
+
+
 		file_amount += 1;
 		n = 0;
 		while (n < (file_size + 1))
@@ -62,7 +60,7 @@ int CountAmount(char* arch_name, char* file_name, int file_scan)
 				end_flag = 1;
 			}
 		}
-		
+		free(cur_file_name);
 	}
 
 	fclose(archivator);
@@ -76,35 +74,20 @@ void insertion(char* arch_name, char* file_name)
 	if (ardy_exts == -1)
 		return;
 
-	FILE* file, *archivator;
-	int alrdy_exts = 0;
-	
-	struct stat file_stat;
-	stat(file_name, &file_stat);
-	mode_t mode = file_stat.st_mode;
+	FILE* file, * archivator;
 
+	
 	if ((file = fopen(file_name, "r")) == NULL)
 	{
 		printf("Cannot open the file %s\n", file_name);
 		exit(2);
 	}
-	if (access(arch_name, 0) == -1)
-		alrdy_exts = 1;
+
+	struct stat file_stat;
+	stat(file_name, &file_stat);
+	mode_t mode = file_stat.st_mode;
+
 	archivator = fopen(arch_name, "a+");
-	//int amount = 0;
-
-	/*if ((access("CountAmount", 0) == 0) && (alrdy_exts != 1))
-	{
-		count_amount = fopen("CountAmount", "r+");
-		fscanf(count_amount, "%d", &amount);
-		fclose(count_amount);
-	}
-
-	count_amount = fopen("CountAmount", "w");
-	amount += 1;
-	fprintf(count_amount, "%d", amount);
-	fclose(count_amount);*/
-
 	char* buff = 0;
 	long length;
 	if (file)
@@ -119,8 +102,9 @@ void insertion(char* arch_name, char* file_name)
 			fread(buff, 1, length, file);
 		}
 	}
-	fprintf(archivator, "%s %d %d\n", file_name, mode, length);
-	fprintf(archivator, buff);
+
+	fprintf(archivator, "%d %s %d %d\n", strlen(file_name), file_name, mode, length);
+	fwrite( buff,1,length, archivator);
 
 	free(buff);
 	fclose(file);
@@ -134,29 +118,27 @@ void extraction(char* arch_name, char* file_name)
 	FILE* file, * archivator;
 	if ((archivator = fopen(arch_name, "r")) == NULL)
 	{
-		printf("Cannot open the file %s\n", arch_name);
-		exit(2);
+		printf("Cannot open the file: (%s)\n", arch_name);
+		return;
 	}
 	file = fopen(file_name, "w");
 
-	char buff[strlen(file_name)];
 	char ch;
 	fpos_t pos;
+	long pars_len;
 	long name_len;
-	long name;
 	int search_flag = 1;
 
-	int archive_size = 0;
-	int file_size;
+	long int before_file_size = 0;
+	long int file_size;
 	int mode_len = 0;
 
 
 	while (search_flag != 0)
 	{
-
 		file_size = 0;
+		pars_len = 0;
 		name_len = 0;
-		name = 0;
 
 		//name_len
 		fgetpos(archivator, &pos);
@@ -166,24 +148,26 @@ void extraction(char* arch_name, char* file_name)
 			ch = fgetc(archivator);
 			if (ch == EOF)
 			{
-				ch = '\n';
-				search_flag = 0;
+				/*ch = '\n';
+				search_flag = 0;*/
 				printf("No such file in archive.\nFile name: %s\nArchive name: %s\n", file_name, arch_name);
+				return;
 			}
-			if (ch == ' ' && name != 0)
-				name = name_len;
-			else
-				mode_len = name_len;
-			name_len += 1;
+			pars_len += 1;
 		}
 
 		fsetpos(archivator, &pos);
-		fscanf(archivator, "%s %d %d", buff, &mode_len, &file_size);
+		//takes current file name, permessions and file size
+		fscanf(archivator, "%ld ", &name_len);
+		char *cur_file_name;
+		cur_file_name = malloc(name_len);
+		fread(cur_file_name, 1, name_len, archivator);
+		fscanf(archivator, " %d %ld", &mode_len, &file_size);
 
-		if (strcmp(buff, file_name) == 0)
+		//if our file
+		if (strcmp(cur_file_name, file_name) == 0)
 		{
-			char* _buff = 0;
-
+			char* _buff;
 			if (archivator)
 			{
 				_buff = malloc(file_size);
@@ -193,24 +177,26 @@ void extraction(char* arch_name, char* file_name)
 					fread(_buff, 1, file_size, archivator);
 				}
 			}
-			fprintf(file, _buff);
-			if (_buff)
-				free(_buff);
+
+			fwrite(_buff, file_size, 1, file);
+			free(_buff);
 			search_flag = 0;
 		}
 		else
 		{
+
 			int counter = 0;
 			while (counter != (file_size + 1))
 			{
 				counter += 1;
 				ch = fgetc(archivator);
 			}
-			archive_size += name_len + file_size;
+			before_file_size = ftell(archivator);
 		}
+		free(cur_file_name);
 	}
 
-
+;
 	char* file_before = 0, * file_after = 0;
 	int length;
 
@@ -218,57 +204,61 @@ void extraction(char* arch_name, char* file_name)
 	length = ftell(archivator);
 	fseek(archivator, 0, SEEK_SET);
 
-	if (archive_size != 0)
+	if (before_file_size != 0)
 	{
 		if (archivator)
 		{
-			file_before = malloc(archive_size + 1);
+			file_before = malloc(before_file_size);
 			if (file_before)
 			{
-				fread(file_before, 1, archive_size, archivator);
+				fread(file_before, 1, before_file_size, archivator);
 			}
 		}
-//		printf("\nPre buffer:\n|%s|\n", _buff);
+		//		printf("\nPre buffer:\n|%s|\n", _buff);
 	}
 
-//	printf("\nOdd chars:\n|");
+	//	printf("\nOdd chars:\n|");
 	int counter = 0;
-	while (counter != file_size + name_len)
+	while (counter != file_size + pars_len)
 	{
 		ch = fgetc(archivator);
-//		printf("%c", ch);
+		//		printf("%c", ch);
 		counter += 1;
 	}
-//	printf("|\n");
+	//	printf("|\n");
 
-//	printf("%d\n", length - archive_size - counter);
+	//printf("%d\n", length - archive_size - counter);
 	if (length != ftell(archivator))
 	{
 		if (archivator)
 		{
-			file_after = malloc(length - archive_size - counter);
+			file_after = malloc(length - before_file_size - counter);
 			if (file_after)
 			{
-				fread(file_after, 1, length - archive_size - counter, archivator);
+				fread(file_after, 1, length - before_file_size - counter, archivator);
 			}
 		}
-//		printf("\nAfter buffer:\n|%s|\n", _buff);
+		//printf("\nAfter buffer:\n|%s|\n", _buff);
 	}
 
-	if(archivator)
-		fclose(archivator);
-	fclose(file);
+
 
 	archivator = fopen(arch_name, "w");
-	//printf("Before:\n%s\n\nAfter:\n%s\n");
-	if(file_before)
-		fprintf(archivator, "%s", file_before);
-	if(file_after)
-		fprintf(archivator, "%s", file_after);
-	//fprintf(archivator, file_after);
+	if (file_before)
+		fwrite(file_before, before_file_size, 1, archivator);
+	if (file_after)
+		fwrite(file_after, length - before_file_size - counter, 1, archivator);
+
+
+	fclose(file);
 	fclose(archivator);
 	free(file_before);
 	free(file_after);
+
+	struct stat rm_stat;
+	stat(arch_name, &rm_stat);
+	if (rm_stat.st_size == 0)
+		remove(arch_name);
 }
 
 void Help()
@@ -286,24 +276,6 @@ void Stat_info(char* arch_name)
 
 	int file_amount = CountAmount(arch_name, " ", 0);
 	printf("\nFile amount: %d\n", file_amount);
-	/*
-	FILE* count_amount;
-	if ((count_amount = fopen("CountAmount", "r+")) == NULL)
-	{
-		printf("No files in archive = no stat\n");
-		return;
-	}
-
-	int amount = 0;
-	fscanf(count_amount, "%d\n", &amount);
-	fclose(count_amount);
-
-	if (amount == 0)
-	{
-		printf("No files in archive = no stat\n");
-		return;
-	}
-	*/
 
 	struct stat buff;
 	stat(arch_name, &buff);
@@ -350,6 +322,12 @@ int main(int argc, char* argv[])
 	char cur_flag = ' ';
 	char* arch, * file;
 	arch = argv[1];
+	if (arch[0] == '-')
+	{
+		printf("First paramets must be archive name");
+		return 3;
+	}
+
 
 	while ((go = getopt(argc, argv, "i:e:hs")) != -1)
 	{
@@ -370,6 +348,9 @@ int main(int argc, char* argv[])
 		case '?':
 			printf("ERROR");
 			return 1;
+		default:
+			printf("NO FLAG");
+			return 2;
 		}
 	}
 

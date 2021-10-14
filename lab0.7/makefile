@@ -2,12 +2,12 @@ all: build
 
 build:
 	gcc archivator.c -o archivator	
-	./archivator arch -i file2 -i file3 -e file2 -i file4 -h -s
+	./archivator arch -i file1 -i file1 
 clean:
 	rm archivator
 	rm arch
 extraction_all:
-	./archivator arch -e file1 -e file2
+	./archivator arch -i archivator.c -e archivator.c -i file1 -i file2 -e file1 -i archivator.c -i file1 -i file1
 extr_first:
 	 ./archivator arch -e file1
 extr_last:
