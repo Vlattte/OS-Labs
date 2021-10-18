@@ -130,7 +130,6 @@ int main(int argc, char* argv[])
 			return 2;
 		}
 	}
-	printf("\n");
 
 	struct stat st;
 	if (place_flag > 2)
@@ -145,9 +144,14 @@ int main(int argc, char* argv[])
 
 		mode_t mode = st.st_mode;
 		if (is_plus == 1)
-			chmod(argv[argc - 1], mode + fixer);
+			chmod(argv[argc - 1], fixer | mode);
 		else if (is_plus == -1)
-			chmod(argv[argc - 1], mode - fixer);
+		{
+			if ((fixer ^ mode) > mode)
+				printf("NO RIGHT TO REMOVE\n");
+			else
+				chmod(argv[argc - 1], fixer ^ mode);
+		}
 	}
 	else if (place_flag != -1)
 		printf("ERROR IN REQUEST!!! NO PERMISSION'S ARGUMENTS TO CHANGE\n");
