@@ -17,6 +17,7 @@ void Help()
 	printf("second flag is add(-a) or remove(-r) flag\n\t");
 	printf("third flag  is read(-r), write(-w) or execute(-e) flags\n");
 	printf("If request is written wrong, it will be blocked and ended\n");
+	printf("If request tries to remove rights which are not exists, there will not be an error\n");
 }
 
 int main(int argc, char* argv[])
@@ -139,18 +140,21 @@ int main(int argc, char* argv[])
 			printf("ERROR IN REQUEST. NO FILE\n");
 			return 3;
 		}
-		else
+		else if (access(argv[argc - 1], 0) == 0)
 			stat(argv[argc - 1], &st);
+		else
+			printf("NO SUCH FILE %s\n", argv[argc - 1]);
 
 		mode_t mode = st.st_mode;
 		if (is_plus == 1)
 			chmod(argv[argc - 1], fixer | mode);
 		else if (is_plus == -1)
 		{
-			if ((fixer ^ mode) > mode)
+			//printf("mode ^ fixer: %d\n fixer ^ mode: %d\n", mode ^ fixer, fixer ^ mode);
+			/*if ((fixer ^ mode) > mode)
 				printf("NO RIGHT TO REMOVE\n");
-			else
-				chmod(argv[argc - 1], fixer ^ mode);
+			else*/
+				chmod(argv[argc - 1], (~fixer) & mode);
 		}
 	}
 	else if (place_flag != -1)
