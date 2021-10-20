@@ -102,9 +102,9 @@ int main(int argc, char* argv[])
 					fixer += 00020;
 				if (gou_perm == 'o')
 					fixer += 00002;
-				else
-					print_bad_place('w');
 			}
+			else
+				print_bad_place('w');
 
 			place_flag *= 11;
 			break;
@@ -150,10 +150,6 @@ int main(int argc, char* argv[])
 			chmod(argv[argc - 1], fixer | mode);
 		else if (is_plus == -1)
 		{
-			//printf("mode ^ fixer: %d\n fixer ^ mode: %d\n", mode ^ fixer, fixer ^ mode);
-			/*if ((fixer ^ mode) > mode)
-				printf("NO RIGHT TO REMOVE\n");
-			else*/
 				chmod(argv[argc - 1], (~fixer) & mode);
 		}
 	}
