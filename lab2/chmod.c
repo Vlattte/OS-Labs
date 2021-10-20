@@ -82,46 +82,47 @@ int main(int argc, char* argv[])
 			else if ( (place_flag > 1) && (place_flag % 9) != 0)
 			{
 				if (gou_perm == 'u')
-					fixer += 00400;
+					fixer += S_IRUSR;
 				if (gou_perm == 'g')
-					fixer += 00040;
+					fixer += S_IRGRP;
 				if (gou_perm == 'o')
-					fixer += 00004;
+					fixer += S_IROTH;
 				place_flag *= 9;
 			}
 			else
 				print_bad_place('r');
+
 			break;
 		//THIRD FLAGS
 		case 'w':
 			if (place_flag > 1 && (place_flag % 11) != 0)
 			{
 				if (gou_perm == 'u')
-					fixer += 00200;
+					fixer += S_IWUSR;
 				if (gou_perm == 'g')
-					fixer += 00020;
+					fixer += S_IWGRP;
 				if (gou_perm == 'o')
-					fixer += 00002;
+					fixer += S_IWOTH;
+				place_flag *= 11;
 			}
 			else
 				print_bad_place('w');
 
-			place_flag *= 11;
 			break;
 		case 'x':
 			if (place_flag > 1 && (place_flag % 13) != 0)
 			{
 				if (gou_perm == 'u')
-					fixer += 00100;
+					fixer += S_IXUSR;
 				if (gou_perm == 'g')
-					fixer += 00010;
+					fixer += S_IXGRP;
 				if (gou_perm == 'o')
-					fixer += 00001;
+					fixer += S_IXOTH;
+				place_flag *= 13;
 			}
 			else
 				print_bad_place('x');
 
-			place_flag *= 13;
 			break;
 		case '?':
 			printf("ERROR");
