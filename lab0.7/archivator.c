@@ -121,7 +121,7 @@ void extraction(char* arch_name, char* file_name)
 		printf("Cannot open the file: (%s)\n", arch_name);
 		return;
 	}
-	file = fopen(file_name, "w");
+
 
 	char ch;
 	fpos_t pos;
@@ -167,6 +167,7 @@ void extraction(char* arch_name, char* file_name)
 		//if our file
 		if (strcmp(cur_file_name, file_name) == 0)
 		{
+			file = fopen(file_name, "w");
 			char* _buff;
 			if (archivator)
 			{
