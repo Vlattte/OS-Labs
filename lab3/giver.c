@@ -20,14 +20,14 @@ int main(int agrc, char* argv[])
 {
 	struct shmid_ds shmid_ds;
 
-	key_t key = ftok(FILENAME, 8);
+	key_t key = ftok(FILENAME, 1);
 	if (key == -1)
 	{
 		printf("FTOK ERROR %s\n", strerror(errno));
 		exit(-1);
 	}
 
-	int shmemid = shmget(key, 8, IPC_CREAT | 0666);
+	int shmemid = shmget(key, 1, IPC_CREAT | 0666);
 	if (shmemid < 0)
 	{
 		printf("SHMGET ERROR %s\n", strerror(errno));

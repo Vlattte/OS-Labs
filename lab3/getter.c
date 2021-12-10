@@ -17,7 +17,7 @@ typedef struct data
 
 int main(int agrc, char* argv[])
 {
-	key_t key = ftok(FILENAME, 8);
+	key_t key = ftok(FILENAME, 1);
 	
 	if (key == -1)
 	{
@@ -25,7 +25,7 @@ int main(int agrc, char* argv[])
 		exit(-1);
 	}
 
-	int shmemid = shmget(key, sizeof(data), 0666);
+	int shmemid = shmget(key, 1, 0666);
 	if (shmemid < 0)
 	{
 		printf("SHMGET ERROR %s\n", strerror(errno));

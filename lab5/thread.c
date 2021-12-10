@@ -31,6 +31,7 @@ void* read_fun(void* str)
 		pthread_mutex_unlock(&mutex);
 		sleep(2);
 	}
+	pthread_exit(NULL);
 }
 
 int main(int argc, char** argv)
@@ -43,8 +44,9 @@ int main(int argc, char** argv)
 	pthread_t reader[10];
 	for (int i = 0; i < 10; i++)
 		pthread_create(&reader[i], NULL, read_fun, NULL);
+
 	pthread_join(writer, NULL);
-	
+	pthread_mutex_destroy(&mutex);
 	return 0;
 }
 

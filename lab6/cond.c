@@ -17,8 +17,8 @@ void* write_fun(void* str)
 	{
 		pthread_mutex_lock(&mutex);
 		arr++;
-		pthread_mutex_unlock(&mutex);
 		pthread_cond_broadcast(&cond);
+		pthread_mutex_unlock(&mutex);
 		sleep(2);
 	}
 }
