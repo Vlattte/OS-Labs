@@ -47,6 +47,7 @@ int main(int argc, char** argv)
 
 	pthread_join(writer, NULL);
 	pthread_mutex_destroy(&mutex);
+	pthread_cond_destroy(&cond);
 	return 0;
 }
 
