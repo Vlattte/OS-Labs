@@ -45,8 +45,8 @@ int main(int agrc, char* argv[])
 	time_t cur_time = time(NULL);
 	printf("GETTER TIME: %s\n", ctime(&cur_time));
 
-	/*shmdt(shmatptr);
-	shmctl(shmemid, IPC_RMID, NULL);*/
+	shmdt(shmatptr);
+//	shmctl(shmemid, IPC_RMID, NULL);
 
 	return 0;
 }

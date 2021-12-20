@@ -42,17 +42,16 @@ int main(int agrc, char* argv[])
 		exit(1);
 	}
 
+	void* shmatptr = shmat(shmemid, NULL, 0);
+	if (shmatptr < 0)
+                {
+                        printf("SHMAT ERROR %s\n", strerror(errno));
+                        exit(-3);
+                }
+
 
 	while (1 == 1)
 	{
-		void* shmatptr = shmat(shmemid, NULL, 0);
-		
-		if (shmatptr < 0)
-		{
-			printf("SHMAT ERROR %s\n", strerror(errno));
-			exit(-3);
-		}
-
 		time_t cur_time = time(NULL);
 		data shared_memory = { getpid(),  cur_time };
 
@@ -60,8 +59,8 @@ int main(int agrc, char* argv[])
 		printf("\nplaced in shared memory: MY PID: %d\nMY TIME: %s\n",
 			shared_memory.fppid, ctime(&shared_memory.fptime));
 		sleep(5);
-
-		shmdt(shmatptr);	
 	}
+	shmdt(shmatptr);
+
 	return 0;
 }

@@ -14,7 +14,7 @@ void* write_fun(void* str)
 {
 	while (1)
 	{
-		pthread_rwlock_trywrlock(&rwlock);
+		pthread_rwlock_wrlock(&rwlock);
 		arr++;
 		pthread_rwlock_unlock(&rwlock);
 		sleep(2);
@@ -25,7 +25,7 @@ void* read_fun(void* str)
 {
 	while (1)
 	{
-		pthread_rwlock_tryrdlock(&rwlock);
+		pthread_rwlock_rdlock(&rwlock);
 		printf("Cur val = %d\nPthread ID - %x\n", arr, pthread_self());
 		pthread_rwlock_unlock(&rwlock);
 		sleep(2);

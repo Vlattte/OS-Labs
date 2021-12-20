@@ -37,15 +37,14 @@ void* read_fun(void* str)
 
 int main(int argc, char** argv)
 {
-	pthread_mutex_init(&mutex, NULL);
-
 	pthread_t writer;
-	pthread_create(&writer, NULL, write_fun, NULL);
+	//pthread_create(&writer, NULL, write_fun, NULL);
 
 	pthread_t reader[10];
 	for (int i = 0; i < 10; i++)
 		pthread_create(&reader[i], NULL, read_fun, NULL);
-	pthread_cond_broadcast(&cond);
+	pthread_create(&writer, NULL, write_fun, NULL);
+
 	pthread_join(writer, NULL);
 	return 0;
 }
