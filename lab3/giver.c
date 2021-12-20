@@ -61,6 +61,6 @@ int main(int agrc, char* argv[])
 		sleep(5);
 	}
 	shmdt(shmatptr);
-
+	shmctl(shmemid, IPC_RMID, NULL);
 	return 0;
 }
