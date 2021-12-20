@@ -46,6 +46,7 @@ int main(int argc, char** argv)
 	pthread_create(&writer, NULL, write_fun, NULL);
 
 	pthread_join(writer, NULL);
+	pthread_mutex_destroy(&mutex);
 	return 0;
 }
 
